@@ -4,6 +4,7 @@
         "iostream": "cpp",
         "vector": "cpp",
         "array": "cpp",
-        "set": "cpp"
+        "set": "cpp",
+        "queue": "cpp"
     }
 }
