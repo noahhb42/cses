@@ -18,10 +18,11 @@ void dfs1(int node, vector<vi>& g, vector<ll>& sub, vector<ll>& sum_child, vi& p
         dfs1(child, g, sub, sum_child, parent);
         sub[node] += sub[child] + 1;
     }
+    sum_child[node] = sub[node];
     for(int child : g[node]){
         if(parent[node] == child)continue;
 
-        sum_child[node] += sum_child[child] + sub[child] + 1;
+        sum_child[node] += sum_child[child];
     }
 }
 
