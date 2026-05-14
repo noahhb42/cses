@@ -87,7 +87,7 @@ int main() {
     sort(all(qs),cmp);
 
     vi ans(n,0);
-    map<ll,ll> last;
+    map<int,int> last;
     SegTree st(n);
 
     int i = 0;
