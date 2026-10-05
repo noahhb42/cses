@@ -6,5 +6,6 @@
         "array": "cpp",
         "set": "cpp",
         "queue": "cpp"
-    }
+    },
+    "editor.snippetSuggestions": "top"
 }
