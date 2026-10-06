@@ -25,7 +25,7 @@ int main() {
             dp[i] = (dp[i] + 2*dp[i-1])%mod;
         }
         else{
-            dp[i] = (dp[i] + 2*(dp[i-1]) - dp[last[s[i-1]-'a']-1])%mod;
+            dp[i] = (dp[i] + 2*dp[i-1] - dp[last[s[i-1]-'a']-1])%mod;
         }
         last[s[i-1]-'a'] = i;
     }
