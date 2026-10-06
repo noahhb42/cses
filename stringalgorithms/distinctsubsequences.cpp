@@ -8,19 +8,17 @@ typedef long long ll;
 typedef pair<int, int> pii;
 typedef vector<int> vi;
 
-#define int long long
+const ll mod = 1e9 + 7;
 
-const int mod = 1e9 + 7;
-
-signed main() {
+int main() {
     cin.tie(0)->sync_with_stdio(0);
     cin.exceptions(cin.failbit);
     
     string s;cin>>s;
     int n = sz(s);
-    vector<int> dp(n+1,0);
+    vector<ll> dp(n+1,0);
     dp[0] = 1;
-    vector<int> last(26,0);
+    vi last(26,0);
 
     rep(i,1,n+1){
         if(last[s[i-1]-'a'] == 0){
