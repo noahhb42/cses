@@ -1,82 +1,64 @@
 #include "bits/stdc++.h"
 using namespace std;
-typedef long long ll;
-typedef vector<ll> vll;
-typedef vector<vll> vvll;
-#define rep(i,a,n) for(ll i = a ; i<n ; ++i)
 
-struct Node{
-    ll l = 0, r = 0;
-    ll sum = 0;
+#define rep(i, a, b) for(int i = a; i < (b); ++i)
+#define all(x) begin(x), end(x)
+#define sz(x) (int)(x).size()
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef vector<int> vi;
+
+template<class T>
+struct RMQ {
+	vector<vector<T>> jmp;
+	RMQ(const vector<T>& V) : jmp(1, V) {
+		for (int pw = 1, k = 1; pw * 2 <= sz(V); pw *= 2, ++k) {
+			jmp.emplace_back(sz(V) - pw * 2 + 1);
+			rep(j,0,sz(jmp[k]))
+				jmp[k][j] = min(jmp[k - 1][j], jmp[k - 1][j + pw]);
+		}
+	}
+	T query(int a, int b) {
+		assert(a < b); // or return inf if a == b
+		int depth = 31 - __builtin_clz(b - a);
+		return min(jmp[depth][a], jmp[depth][b - (1 << depth)]);
+	}
 };
 
-vector<Node> st;
+const int B = 30; // bucket b holds values in [2^b, 2^(b+1))
 
-ll clone_node(ll v){
-    st.push_back(st[v]);
-    return (ll)st.size()-1;
-}
-
-ll update(ll v, ll lo, ll hi, ll pos, ll add){
-    ll u = clone_node(v);
-    st[u].sum+=add;
-
-    if(lo+1==hi)return u;
-
-    ll mid = lo + (hi-lo)/2;
-
-    if(pos < mid){
-        st[u].l=update(st[v].l,lo,mid,pos,add);
-    }
-    else{
-        st[u].r=update(st[v].r,mid,hi,pos,add);
-    }
-    return u;
-}
-
-ll query(ll v, ll lo, ll hi, ll L, ll R){
-    if(v==0 || R <= lo || hi <= L)return 0;
-    if(L <= lo && hi <= R)return st[v].sum;
-    ll mid = lo + (hi-lo)/2;
-    return query(st[v].l, lo, mid, L, R) + query(st[v].r, mid, hi, L, R);
-}
-
-int main(){
+int main() {
     cin.tie(0)->sync_with_stdio(0);
+    cin.exceptions(cin.failbit);
 
-    ll n,q;cin>>n>>q;
-    vector<pair<ll,ll>> order(n);
+    int n,q;cin>>n>>q;
+
+    // cnt[i][b] = number of bucket b values among the first i
+    vector<array<int,B>> cnt(n+1);
+    vector<vi> val(B);
+    vector<vector<ll>> pre(B, vector<ll>(1,0));
     rep(i,0,n){
-        ll a;cin>>a;
-        order[i] = make_pair(a,i);
-    }
-    sort(order.begin(),order.end());
-
-    vll vals(n);
-    rep(i,0,n)vals[i] = order[i].first;
-
-    st.reserve((n+5)*20);
-    st.push_back(Node());
-
-    vll roots(n+1);
-    roots[0] = 0;
-
-    rep(i,0,n){
-        roots[i+1] = update(roots[i], 0, n, order[i].second, order[i].first);
+        int x;cin>>x;
+        int b = 31 - __builtin_clz(x);
+        cnt[i+1] = cnt[i];
+        cnt[i+1][b]++;
+        val[b].push_back(x);
+        pre[b].push_back(pre[b].back() + x);
     }
 
-    auto solve = [&](ll L, ll R) -> ll{
-        ll x = 0;
-        while(true){
-            ll k = upper_bound(vals.begin(),vals.end(),x+1)-vals.begin();
-            ll s = query(roots[k], 0, n, L , R);
-            if(s==x)return x+1;
-            x=s;
-        }
-    };
+    vector<RMQ<int>> rmq;
+    rep(b,0,B)rmq.emplace_back(val[b]);
 
     while(q--){
-        ll l,r;cin>>l>>r;
-        cout << solve(l-1,r) << "\n";
+        int l,r;cin>>l>>r;l--;
+        ll cur = 0; // every sum in [0, cur] can be made
+        rep(b,0,B){
+            int lo = cnt[l][b], hi = cnt[r][b];
+            if(lo == hi)continue;
+            if(rmq[b].query(lo,hi) > cur+1)break;
+            // smallest fits, so cur >= 2^(b+1)-1 after it and the rest fit too
+            cur += pre[b][hi] - pre[b][lo];
+        }
+        cout << cur+1 << "\n";
     }
 }
